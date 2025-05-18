@@ -1,11 +1,32 @@
-import { set, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import './login.css';
 
+//npm install react-hook-form
+//npm install zod
+//npm install @hookform/resolvers
+
 const Login = () => {
-    const { register, handleSubmit, setError, formState: {errors, isSubmitting} } = useForm({defaultValues: {
-        email: "test@gmail.com",
-    }}); //if default values are not needed, leave useForm() empty
+    //zod validation schema
+    const schema = z.object({
+        email: z.string().email(),
+        password: z.string().min(8)
+    });
+
+    const { 
+        register, 
+        handleSubmit, 
+        setError, 
+        formState: {errors, isSubmitting} 
+        } = useForm({
+            defaultValues: {
+                email: "test@gmail.com",
+            }, 
+            resolver: zodResolver(schema)
+        }); //if default values are not needed, leave useForm() empty
     
+    //normal function without async
     /*const onSubmit = (data) => {
         console.log(data);
     }*/
@@ -32,16 +53,11 @@ const Login = () => {
         <form className="login-container" onSubmit={handleSubmit(onSubmit)}>
             <div className="header">
                 {/*<img src="logo.png" alt="Company Logo" className="logo" />*/}
-                <h1>Company Name</h1>
+                <h1>Sam's Company</h1>
             </div>
 
-            {/*without validation*/}
-            {/*<input {...register("email")} type="text" placeholder="email" />
-            <input {...register("password")} type="password" placeholder="Password" />
-            <button type="submit">Login</button>*/}
-
-            {/*with validation*/}
-            <input {...register("email", {
+            {/*with react hook form validation*/}
+            {/*<input {...register("email", {
                 required: {
                     value: true,
                     message: "Email is required"
@@ -63,6 +79,13 @@ const Login = () => {
                     message: "Password must be at least 8 characters long"
                 }   
             })} type="password" placeholder="Password" />
+            {errors.password && <div className="error">{errors.password.message}</div>}*/}
+
+            {/*with zod validation*/}
+            <input {...register("email")} type="text" placeholder="email" />
+            {errors.email && <div className="error">{errors.email.message}</div>}
+
+            <input {...register("password")} type="password" placeholder="Password" />
             {errors.password && <div className="error">{errors.password.message}</div>}
             
             <button disabled={isSubmitting} type="submit">
